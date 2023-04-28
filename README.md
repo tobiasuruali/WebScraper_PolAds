@@ -8,7 +8,9 @@ To run this project, follow these steps:
 
 1. Set up Docker by following the instructions [here](https://docs.docker.com/get-docker/).
 2. Run the Rselenium docker image with this command:  
- ```docker run -d -p 4445:4444 -p 5901:5900 --shm-size="2g" selenium/standalone-firefox:4.8.3-20230403```  
+ ```bash
+ docker run -d -p 4445:4444 -p 5901:5900 --shm-size="2g" selenium/standalone-firefox:4.8.3-20230403
+ ```    
  This command runs a Docker container with the `selenium/standalone-firefox:4.8.3-20230403` image in detached mode. Port 4444 in the container (the Selenium port) is mapped to port 4445 on the host machine. Port 5900 in the container is mapped to port 5901 on the host machine, allowing remote access with a VNC viewer. The shared memory size for the container is set to 2GB.
 
 3. Run the scripts in the following order:
