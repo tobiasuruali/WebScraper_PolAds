@@ -19,3 +19,5 @@ To run this project, follow these steps:
     - `03_trump_biden_subset.R`: This script selects ads from advertisers that have either "Trump" or "Biden" in their name and randomly selects 25 ads from each group.
     - `04_download_and_transcribe.ipynb`: This script uses Google Colab and the package yt-dlp to download just the audio of each youtube video and transcribes it using OpenAI's Whisper Transcription model.
     - `05_gpt_sentiment_analysis.ipynb`: This script uses GPT-3.5 Turbo to perform sentiment analysis on the transcribed text.
+
+4. For scripts `04_download_and_transcribe.ipynb` and `05_gpt_sentiment_analysis.ipynb`, you will need to create a Google Drive folder called `Google_Pol_Ads`. After that, the folder structure should be the same as this project, with `data/data_processed` and `data/data_raw` folders.
