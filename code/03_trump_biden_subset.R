@@ -12,15 +12,18 @@ us_video_url_scraped <- list.files(
 
 us_trump_biden_video <- us_video_url_scraped %>%  
   filter(youtube_url != "NoVideo" & 
+           str_detect(youtube_url, "^https") &
            (str_detect(tolower(advertiser_name), "trump") | str_detect(tolower(advertiser_name), "biden")))
 
 us_trump_video <- us_video_url_scraped %>%  
   filter(youtube_url != "NoVideo" & 
-           (str_detect(tolower(advertiser_name), "trump")))
+           str_detect(youtube_url, "^https") &
+           str_detect(tolower(advertiser_name), "trump"))
 
 us_biden_video <- us_video_url_scraped %>%  
   filter(youtube_url != "NoVideo" & 
-           (str_detect(tolower(advertiser_name), "biden")))
+           str_detect(youtube_url, "^https") &
+           str_detect(tolower(advertiser_name), "biden"))
 
 # Create a sample of 25 videos each
 # Set the seed for reproducibility
