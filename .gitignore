@@ -162,3 +162,16 @@ cython_debug/
 *.Rproj
 *.RData
 *.Rhistory
+
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Python, Jupyter Notebooks and Envs
+*.pyc
+__pycache__/
+*.so
+*.egg
+
+env*/
