@@ -1,12 +1,17 @@
 import scrapy
 import json
 import csv
+from urllib.parse import urlparse, parse_qs
 
 class AdspiderSpider(scrapy.Spider):
     name = "adspider"
     allowed_domains = ["adstransparency.google.com"]
-    start_urls = ["https://adstransparency.google.com/advertiser/AR06503673263263055873/creative/CR05870336561161175041?region=US",
-                  "https://adstransparency.google.com/advertiser/AR17896267392510590977/creative/CR18102955856042655745?region=US"]
+    start_urls = [
+        "https://adstransparency.google.com/advertiser/AR06503673263263055873/creative/CR05870336561161175041?region=US",
+        "https://adstransparency.google.com/advertiser/AR17896267392510590977/creative/CR18102955856042655745?region=US",
+        "https://adstransparency.google.com/advertiser/AR11825178974693097473/creative/CR03980852629424046081?region=US&",
+        "https://adstransparency.google.com/advertiser/AR02263241812720222209/creative/CR16714562941231300609?region=US"
+    ]
 
     headers = {
         "Accept": "*/*",
@@ -24,16 +29,26 @@ class AdspiderSpider(scrapy.Spider):
         "X-Same-Domain": "1",
     }
 
-    body = 'f.req=%7B%221%22%3A%22AR06503673263263055873%22%2C%222%22%3A%22CR05870336561161175041%22%2C%225%22%3A%7B%221%22%3A2%7D%7D'
-
     def start_requests(self):
         for url in self.start_urls:
+            # Parse the URL to extract the AR* and CR* values
+            parsed_url = urlparse(url)
+            path_parts = parsed_url.path.split('/')
+            ar_value = path_parts[2]
+            cr_value = path_parts[4]
+            print(f'parsed_url: {parsed_url}')
+            print(f'path_parts: {path_parts}')           
+            
+            print("AdvertiserID: ",ar_value," & CreativeID: ", cr_value)
+            # Generate the body of the POST request
+            body = f'f.req=%7B%221%22%3A%22{ar_value}%22%2C%222%22%3A%22{cr_value}%22%2C%225%22%3A%7B%221%22%3A2%7D%7D'
+
             yield scrapy.Request(
                 url="https://adstransparency.google.com/anji/_/rpc/LookupService/GetCreativeById?authuser=",
                 callback=self.parse,
                 method='POST',
                 headers=self.headers,
-                body=self.body
+                body=body
             )
 
     def parse(self, response):
