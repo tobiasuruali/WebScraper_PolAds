@@ -24,7 +24,7 @@ class AdSpider(scrapy.Spider):
     allowed_domains = ["adstransparency.google.com"]
     
     # Read the start_urls from the us_video_rows.fst file
-    df = pd.read_parquet('data/data_processed/us_video_ads_sample.parquet')
+    df = pd.read_parquet('../data/data_processed/us_video_ads_sample.parquet')
     # Initialize the 'youtube_url' column in the DataFrame
     df['youtube_url'] = ''
     start_urls = df['ad_url'].tolist()
@@ -92,6 +92,7 @@ class AdSpider(scrapy.Spider):
         yield aditem
 
 # Run the spider using CrawlerProcess
-process = CrawlerProcess()
-process.crawl(AdSpider)
-process.start()
+# Commented out when scrapy crawl adspider was used
+# process = CrawlerProcess()
+# process.crawl(AdSpider)
+# process.start()

@@ -12,6 +12,14 @@ BOT_NAME = "scraper_ads"
 SPIDER_MODULES = ["scraper_ads.spiders"]
 NEWSPIDER_MODULE = "scraper_ads.spiders"
 
+# Set Scraper Export Folder
+FEEDS = {
+    'data/%(name)s/scrapy_batch_%(batch_id)d.csv': {
+        'format': 'csv',
+        'batch_item_count': 8,
+        }
+}
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "scraper_ads (+http://www.yourdomain.com)"
@@ -29,6 +37,11 @@ ROBOTSTXT_OBEY = True
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
+
+#Enable and configure the AutoThrottle extension (disabled by default)
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_DEBUG = True
+
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
