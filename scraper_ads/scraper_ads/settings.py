@@ -14,11 +14,18 @@ NEWSPIDER_MODULE = "scraper_ads.spiders"
 
 # Set Scraper Export Folder
 FEEDS = {
-    'data/%(name)s/scrapy_batch_%(batch_id)d.csv': {
+    '../data/%(name)s/scrapy_batch_%(batch_id)d.csv': {
         'format': 'csv',
         'batch_item_count': 128,
         }
 }
+
+# Custom Parquet Pipeline
+# ITEM_PIPELINES = {
+#     'myproject.pipelines.ParquetExportPipeline': 800,
+# }
+
+
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
