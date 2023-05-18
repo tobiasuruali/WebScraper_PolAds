@@ -16,7 +16,7 @@ NEWSPIDER_MODULE = "scraper_ads.spiders"
 FEEDS = {
     'data/%(name)s/scrapy_batch_%(batch_id)d.csv': {
         'format': 'csv',
-        'batch_item_count': 8,
+        'batch_item_count': 128,
         }
 }
 
