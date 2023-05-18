@@ -1,7 +1,7 @@
 import scrapy
 from scrapy_splash import SplashRequest
 
-class AdspiderSpider(scrapy.Spider):
+class TestAdspiderSpider(scrapy.Spider):
     name = "adspider"
     allowed_domains = ["adstransparency.google.com"]
     start_urls = ["https://adstransparency.google.com/advertiser/AR06503673263263055873/creative/CR05870336561161175041?region=US"]

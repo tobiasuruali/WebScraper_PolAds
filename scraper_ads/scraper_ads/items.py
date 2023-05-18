@@ -6,7 +6,10 @@
 import scrapy
 
 
-class ScraperAdsItem(scrapy.Item):
+class AdItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    ad_id = scrapy.Field()
+    ad_url = scrapy.Field()
+    youtube_url = scrapy.Field()
     pass

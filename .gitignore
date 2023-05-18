@@ -175,3 +175,7 @@ __pycache__/
 *.egg
 
 env*/
+
+
+# Data Archive
+data/data_processed/archive/
