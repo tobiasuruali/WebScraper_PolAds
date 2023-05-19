@@ -32,10 +32,10 @@ class AdSpider(scrapy.Spider):
             print(f"Loaded processed_files set from file: {processed_files}")
     except FileNotFoundError:
         processed_files = set()
-        print("Setting processed_files: .... Set to empty Set")
+        print("Setting processed_files set to empty set")
 
-    # Set batch size to 32
-    batch_size = 32
+    # Set batch size to 8
+    batch_size = 8
 
     headers = {
         "Accept": "*/*",
@@ -54,7 +54,13 @@ class AdSpider(scrapy.Spider):
     }
 
     def start_requests(self):
-        print("Starting requests.........")
+        print("Starting requests")
+
+        # Set the number of parquet files to process before stopping
+        num_files_to_process = 3
+
+        # Initialize a counter variable to keep track of the number of processed files
+        num_processed_files = 0
 
         for filename in os.listdir(self.folder):
             if filename.endswith(".parquet") and filename not in self.processed_files:
@@ -98,8 +104,12 @@ class AdSpider(scrapy.Spider):
                 with open("processed_files.pkl", "wb") as f:
                     pickle.dump(self.processed_files, f)
 
-                # Stop after processing one parquet file
-                break
+                # Increment the counter variable after processing each parquet file
+                num_processed_files += 1
+
+                # Stop after processing the desired number of parquet files
+                if num_processed_files >= num_files_to_process:
+                    break
 
     def parse(self, response, batch_index, url_index, cr_value, url):
         data = json.loads(response.text)
@@ -122,10 +132,12 @@ class AdSpider(scrapy.Spider):
 
         yield aditem
 
-    def close(self, reason):
-        start_time = self.crawler.stats.get_value("start_time")
-        finish_time = self.crawler.stats.get_value("finish_time")
-        print("Total run time: ", finish_time - start_time)
+
+def closed(self, reason):
+    finish_time = self.crawler.stats.get_value("finish_time")
+    start_time = self.crawler.stats.get_value("start_time")
+    duration = finish_time - start_time
+    print(f"Total run time: {duration}")
 
 
 # Run the spider using CrawlerProcess
