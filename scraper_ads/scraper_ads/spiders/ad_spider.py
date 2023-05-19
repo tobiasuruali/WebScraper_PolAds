@@ -90,7 +90,7 @@ class AdSpider(scrapy.Spider):
                             ),
                         )
                     # Pause for 10 seconds before processing the next batch of start_urls
-                    time.sleep(10)
+                    # time.sleep(10)
 
                 self.processed_files.add(filename)
 
