@@ -25,8 +25,8 @@ FEEDS = {
 #     'myproject.pipelines.ParquetExportPipeline': 800,
 # }
 
-
-
+# Create JOBDIR for pausing and resuming crawls
+JOBDIR = 'jobdata/ad_spider'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "scraper_ads (+http://www.yourdomain.com)"
