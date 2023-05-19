@@ -180,4 +180,4 @@ env*/
 # Data Archive
 data/data_processed/archive/
 data/data_processed/us_video_ads_batch/
-data/data_processed/adspider/
+data/adspider/
