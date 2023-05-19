@@ -14,6 +14,7 @@ class ScraperAdsPipeline:
 
 
 # Create a custom parquet pipeline
+import os
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -22,6 +23,7 @@ class ParquetExportPipeline:
         self.items = []
         self.batch_size = 1280
         self.batch_id = 1
+        self.filepath = f'../data/data_raw/parquet_scrape/scrapy_batch_{self.batch_id}.parquet'
 
     def process_item(self, item, spider):
         self.items.append(item)
@@ -34,8 +36,10 @@ class ParquetExportPipeline:
             self.write_items()
 
     def write_items(self):
+        while os.path.exists(self.filepath):
+            # If file already exists, increment batch_id and update filepath
+            self.batch_id += 1
+            self.filepath = f'../data/data_raw/parquet_scrape/scrapy_batch_{self.batch_id}.parquet'
         table = pa.Table.from_pydict(self.items)
-        file_name = f'../data/data_raw/parquet_scrape/scrapy_batch_{self.batch_id}.parquet'
-        pq.write_table(table, file_name, compression='gzip')
+        pq.write_table(table, self.filepath, compression='gzip')
         self.items = []
-        self.batch_id += 1
