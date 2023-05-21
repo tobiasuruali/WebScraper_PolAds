@@ -10,7 +10,6 @@ import os
 import pickle
 from termcolor import colored
 
-
 # Get the absolute path to the parent directory of this script
 parent_dir = Path(__file__).resolve().parent.parent
 
@@ -18,7 +17,6 @@ parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 
 from items import AdItem
-
 
 class AdSpider(scrapy.Spider):
     name = "adspider"
@@ -58,11 +56,29 @@ class AdSpider(scrapy.Spider):
     def start_requests(self):
         print("Starting requests.........")
 
-        for filename in os.listdir(self.folder):
-            print(colored(f"Processing files: {filename}","yellow",attrs=["bold", "underline"],))
-            if filename.endswith(".parquet") and filename not in self.processed_files:
-                print(colored(f"Processing file: {filename}",
-                              "red",attrs=["bold", "underline"]))
+        # Set the number of iterations
+        num_iterations = 2
+
+        for iteration in range(num_iterations):
+            # Get a list of all parquet files in the specified folder that are not in the processed_files set
+            unprocessed_files = [
+                filename for filename in os.listdir(self.folder)
+                if filename.endswith(".parquet") and filename not in self.processed_files
+            ]
+
+            # If there are no unprocessed files, stop immediately
+            if not unprocessed_files:
+                print("No unprocessed files found. Stopping.")
+                return
+
+            for filename in unprocessed_files:
+                print(
+                    colored(
+                        f"Processing file: {filename}",
+                        "red",
+                        attrs=["bold", "underline"],
+                    )
+                )
 
                 filepath = os.path.join(self.folder, filename)
                 df = pd.read_parquet(filepath)
@@ -102,8 +118,6 @@ class AdSpider(scrapy.Spider):
                 with open("processed_files.pkl", "wb") as f:
                     pickle.dump(self.processed_files, f)
 
-                break
-
     def parse(self, response, batch_index, url_index, cr_value, url):
         data = json.loads(response.text)
 
@@ -135,11 +149,11 @@ class AdSpider(scrapy.Spider):
 
         yield aditem
 
-def close(self, reason):
-    start_time = self.crawler.stats.get_value("start_time")
-    finish_time = self.crawler.stats.get_value("finish_time")
-    duration = finish_time - start_time
-    print(colored(f"Total run time: {duration}", "green", "on_black", attrs=["bold"]))
+    def close(self, reason):
+        start_time = self.crawler.stats.get_value("start_time")
+        finish_time = self.crawler.stats.get_value("finish_time")
+        duration = finish_time - start_time
+        print(colored(f"Total run time: {duration}", "green", "on_black", attrs=["bold"]))
 
 
 # Run the spider using CrawlerProcess
