@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 import os
 import pickle
+from termcolor import colored
+
 
 # Get the absolute path to the parent directory of this script
 parent_dir = Path(__file__).resolve().parent.parent
@@ -56,9 +58,21 @@ class AdSpider(scrapy.Spider):
     def start_requests(self):
         print("Starting requests.........")
 
+        # Set the number of parquet files to process before stopping
+        num_files_to_process = 3
+
+        # Initialize a counter variable to keep track of the number of processed files
+        num_processed_files = 0
+
         for filename in os.listdir(self.folder):
             if filename.endswith(".parquet") and filename not in self.processed_files:
-                print(f"Processing file: {filename}")
+                print(
+                    colored(
+                        f"Processing file: {filename}",
+                        "yellow",
+                        attrs=["bold", "underline"],
+                    )
+                )
 
                 filepath = os.path.join(self.folder, filename)
                 df = pd.read_parquet(filepath)
@@ -98,8 +112,19 @@ class AdSpider(scrapy.Spider):
                 with open("processed_files.pkl", "wb") as f:
                     pickle.dump(self.processed_files, f)
 
-                # Stop after processing one parquet file
-                break
+                # Increment the counter variable after processing each parquet file
+                num_processed_files += 1
+                # Comment that a new Iteration is starting
+                print(
+                    colored(
+                        f"Starting new Iteration. Processed {num_processed_files} files"
+                    ),
+                    "yellow",
+                    attrs=["bold", "underline"],
+                )
+                # Stop after processing the desired number of parquet files
+                if num_processed_files >= num_files_to_process:
+                    break
 
     def parse(self, response, batch_index, url_index, cr_value, url):
         data = json.loads(response.text)
@@ -113,19 +138,30 @@ class AdSpider(scrapy.Spider):
             youtube_link = data["1"]["5"][0]["2"]["4"]
             aditem["youtube_url"] = youtube_link
             print(
-                f"Successfully extracted YouTube link for URL index {url_index} : {youtube_link}"
+                colored(
+                    f"Successfully extracted YouTube link for URL index {url_index} : {youtube_link}",
+                    "magenta",
+                    attrs=["bold"],
+                )
             )
         except:
             # If there is an error, set 'youtube_url' to 'NoVideo'
             aditem["youtube_url"] = "NoVideo"
-            print(f"Failed to extract YouTube link for URL index {url_index}")
+            print(
+                colored(
+                    f"Failed to extract YouTube link for URL index {url_index}",
+                    "light_red",
+                    attrs=["bold"],
+                )
+            )
 
         yield aditem
 
-    def close(self, reason):
-        start_time = self.crawler.stats.get_value("start_time")
-        finish_time = self.crawler.stats.get_value("finish_time")
-        print("Total run time: ", finish_time - start_time)
+def close(self, reason):
+    start_time = self.crawler.stats.get_value("start_time")
+    finish_time = self.crawler.stats.get_value("finish_time")
+    duration = finish_time - start_time
+    print(colored(f"Total run time: {duration}", "green", "on_black", attrs=["bold"]))
 
 
 # Run the spider using CrawlerProcess
