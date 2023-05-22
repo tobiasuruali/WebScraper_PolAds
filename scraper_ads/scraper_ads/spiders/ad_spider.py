@@ -2,8 +2,7 @@ import scrapy
 from scrapy.crawler import CrawlerProcess
 import json
 import pandas as pd
-from urllib.parse import urlparse, parse_qs
-import time
+from urllib.parse import urlparse
 import sys
 from pathlib import Path
 import os
@@ -17,6 +16,7 @@ parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 
 from items import AdItem
+
 
 class AdSpider(scrapy.Spider):
     name = "adspider"
@@ -56,69 +56,96 @@ class AdSpider(scrapy.Spider):
     def start_requests(self):
         print("Starting requests.........")
 
-        # Set the number of iterations
-        num_iterations = 2
+        # Set the maximum number of unprocessed files to process
+        max_unprocessed_files = 3
 
-        for iteration in range(num_iterations):
-            # Get a list of all parquet files in the specified folder that are not in the processed_files set
-            unprocessed_files = [
-                filename for filename in os.listdir(self.folder)
-                if filename.endswith(".parquet") and filename not in self.processed_files
-            ]
+        # Get a list of all parquet files in the specified folder that are not in the processed_files set
+        total_unprocessed_files = [
+            filename
+            for filename in os.listdir(self.folder)
+            if filename.endswith(".parquet") and filename not in self.processed_files
+        ]
+        
+        unprocessed_files = total_unprocessed_files[:max_unprocessed_files]
+        # Print the number of unprocessed files
+        print(
+            colored(
+                f"Number of unprocessed files: {len(total_unprocessed_files)}, Scraping: {len(unprocessed_files)}",
+                "cyan",
+                "on_black",
+                attrs=["bold"],
+            )
+        )
+        print(
+            colored(
+                f"Scraping these Unprocessed files: {unprocessed_files}",
+                "cyan",
+                "on_white",
+                attrs=["bold"],
+            )
+        )
 
-            # If there are no unprocessed files, stop immediately
-            if not unprocessed_files:
-                print("No unprocessed files found. Stopping.")
-                return
-
-            for filename in unprocessed_files:
-                print(
-                    colored(
-                        f"Processing file: {filename}",
-                        "red",
-                        attrs=["bold", "underline"],
-                    )
+        # If there are no unprocessed files, stop immediately
+        if not unprocessed_files:
+            print(
+                colored(
+                    f"FINISHED: No unprocessed files found. Stopping.....",
+                    "black",
+                    "on_green",
+                    attrs=["bold", "underline"],
                 )
+            )
+            return
 
-                filepath = os.path.join(self.folder, filename)
-                df = pd.read_parquet(filepath)
-                start_urls = df["ad_url"].tolist()
+        for file_index, filename in enumerate(unprocessed_files):
+            print(
+                colored(
+                    f"Processing file: {filename}",
+                    "yellow",
+                    attrs=["bold", "underline"],
+                )
+            )
 
-                for i in range(0, len(start_urls), self.batch_size):
-                    batch_urls = start_urls[i : i + self.batch_size]
-                    for url in batch_urls:
-                        # Parse the URL to extract the AR* and CR* values
-                        parsed_url = urlparse(url)
-                        path_parts = parsed_url.path.split("/")
-                        ar_value = path_parts[2]
-                        cr_value = path_parts[4]
+            filepath = os.path.join(self.folder, filename)
+            df = pd.read_parquet(filepath)
+            start_urls = df["ad_url"].tolist()
 
-                        # Generate the body of the POST request
-                        body = f"f.req=%7B%221%22%3A%22{ar_value}%22%2C%222%22%3A%22{cr_value}%22%2C%225%22%3A%7B%221%22%3A2%7D%7D"
+            for i in range(0, len(start_urls), self.batch_size):
+                batch_urls = start_urls[i : i + self.batch_size]
+                for url in batch_urls:
+                    # Parse the URL to extract the AR* and CR* values
+                    parsed_url = urlparse(url)
+                    path_parts = parsed_url.path.split("/")
+                    ar_value = path_parts[2]
+                    cr_value = path_parts[4]
 
-                        yield scrapy.Request(
-                            url="https://adstransparency.google.com/anji/_/rpc/LookupService/GetCreativeById?authuser=",
-                            callback=self.parse,
-                            method="POST",
-                            headers=self.headers,
-                            body=body,
-                            cb_kwargs=dict(
-                                batch_index=i,
-                                url_index=start_urls.index(url),
-                                cr_value=cr_value,
-                                url=url,
-                            ),
-                        )
-                    # Pause for 10 seconds before processing the next batch of start_urls
-                    # time.sleep(10)
+                    # Generate the body of the POST request
+                    body = f"f.req=%7B%221%22%3A%22{ar_value}%22%2C%222%22%3A%22{cr_value}%22%2C%225%22%3A%7B%221%22%3A2%7D%7D"
 
-                self.processed_files.add(filename)
+                    yield scrapy.Request(
+                        url="https://adstransparency.google.com/anji/_/rpc/LookupService/GetCreativeById?authuser=",
+                        callback=self.parse,
+                        method="POST",
+                        headers=self.headers,
+                        body=body,
+                        cb_kwargs=dict(
+                            batch_index=i,
+                            url_index=start_urls.index(url),
+                            cr_value=cr_value,
+                            url=url,
+                            file_index=file_index,
+                        ),
+                    )
+                # Pause for 10 seconds before processing the next batch of start_urls
+                # time.sleep(10)
 
-                # Save the processed_files set to a file after processing each parquet file
-                with open("processed_files.pkl", "wb") as f:
-                    pickle.dump(self.processed_files, f)
+            self.processed_files.add(filename)
 
-    def parse(self, response, batch_index, url_index, cr_value, url):
+            # Save the processed_files set to a file after processing each parquet file
+            with open("processed_files.pkl", "wb") as f:
+                pickle.dump(self.processed_files, f)
+
+    def parse(self, response, batch_index, url_index, cr_value, url, file_index):
         data = json.loads(response.text)
 
         aditem = AdItem()
@@ -131,7 +158,7 @@ class AdSpider(scrapy.Spider):
             aditem["youtube_url"] = youtube_link
             print(
                 colored(
-                    f"Successfully extracted YouTube link for URL index {url_index} : {youtube_link}",
+                    f"File index {file_index + 1}: Successfully extracted YouTube link for URL index {url_index} : {youtube_link}",
                     "magenta",
                     attrs=["bold"],
                 )
@@ -141,7 +168,7 @@ class AdSpider(scrapy.Spider):
             aditem["youtube_url"] = "NoVideo"
             print(
                 colored(
-                    f"Failed to extract YouTube link for URL index {url_index}",
+                    f"File index {file_index + 1}: Failed to extract YouTube link for URL index {url_index}",
                     "light_red",
                     attrs=["bold"],
                 )
@@ -153,7 +180,9 @@ class AdSpider(scrapy.Spider):
         start_time = self.crawler.stats.get_value("start_time")
         finish_time = self.crawler.stats.get_value("finish_time")
         duration = finish_time - start_time
-        print(colored(f"Total run time: {duration}", "green", "on_black", attrs=["bold"]))
+        print(
+            colored(f"Total run time: {duration}", "green", "on_black", attrs=["bold"])
+        )
 
 
 # Run the spider using CrawlerProcess

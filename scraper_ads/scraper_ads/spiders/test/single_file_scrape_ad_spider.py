@@ -56,11 +56,11 @@ class AdSpider(scrapy.Spider):
     def start_requests(self):
         print("Starting requests")
 
-        # Set the number of parquet files to process before stopping
-        num_files_to_process = 3
+        # # Set the number of parquet files to process before stopping
+        # num_files_to_process = 3
 
-        # Initialize a counter variable to keep track of the number of processed files
-        num_processed_files = 0
+        # # Initialize a counter variable to keep track of the number of processed files
+        # num_processed_files = 0
 
         for filename in os.listdir(self.folder):
             if filename.endswith(".parquet") and filename not in self.processed_files:
@@ -104,12 +104,13 @@ class AdSpider(scrapy.Spider):
                 with open("processed_files.pkl", "wb") as f:
                     pickle.dump(self.processed_files, f)
 
-                # Increment the counter variable after processing each parquet file
-                num_processed_files += 1
+                # # Increment the counter variable after processing each parquet file
+                # num_processed_files += 1
 
-                # Stop after processing the desired number of parquet files
-                if num_processed_files >= num_files_to_process:
-                    break
+                # # Stop after processing the desired number of parquet files
+                # if num_processed_files >= num_files_to_process:
+                #     break
+                break
 
     def parse(self, response, batch_index, url_index, cr_value, url):
         data = json.loads(response.text)
