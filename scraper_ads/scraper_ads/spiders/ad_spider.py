@@ -57,7 +57,7 @@ class AdSpider(scrapy.Spider):
         print("Starting requests.........")
 
         # Set the maximum number of unprocessed files to process
-        max_unprocessed_files = 3
+        max_unprocessed_files = 4
 
         # Get a list of all parquet files in the specified folder that are not in the processed_files set
         total_unprocessed_files = [
