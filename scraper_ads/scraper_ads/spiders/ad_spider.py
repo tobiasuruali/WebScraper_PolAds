@@ -8,6 +8,8 @@ from pathlib import Path
 import os
 import pickle
 from termcolor import colored
+from datetime import datetime
+import csv
 
 # Get the absolute path to the parent directory of this script
 parent_dir = Path(__file__).resolve().parent.parent
@@ -57,7 +59,7 @@ class AdSpider(scrapy.Spider):
         print("Starting requests.........")
 
         # Set the maximum number of unprocessed files to process
-        max_unprocessed_files = 4
+        max_unprocessed_files = 1
 
         # Get a list of all parquet files in the specified folder that are not in the processed_files set
         total_unprocessed_files = [
@@ -67,6 +69,14 @@ class AdSpider(scrapy.Spider):
         ]
         
         unprocessed_files = total_unprocessed_files[:max_unprocessed_files]
+        # Write unprocessed files to a CSV file with the specified name
+        filename = f"spiders/log/scraped_unprocessed_files_{datetime.now().strftime('%Y%m%dT%H%M%S')}.csv"
+        with open(filename, 'w') as f:
+            writer = csv.writer(f)
+            for file in unprocessed_files:
+                writer.writerow([file])
+        
+        
         # Print the number of unprocessed files
         print(
             colored(
