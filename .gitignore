@@ -182,3 +182,6 @@ data/data_processed/archive/
 data/data_processed/test/
 data/data_processed/us_video_ads_batch/
 data/adspider/
+
+# Adspiders
+scraper_ads/scraper_ads/spiders/log/
