@@ -18,7 +18,7 @@ NEWSPIDER_MODULE = "scraper_ads.spiders"
 FEEDS = {
     f'../data/%(name)s/scrapy_us_video_batch_{datetime.now().strftime("%Y%m%dT%H%M%S")}_%(batch_id)d.csv': {
         "format": "csv",
-        "batch_item_count": 256,
+        "batch_item_count": 512,
     }
 }
 

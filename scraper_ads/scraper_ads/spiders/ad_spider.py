@@ -59,7 +59,7 @@ class AdSpider(scrapy.Spider):
         print("Starting requests.........")
 
         # Set the maximum number of unprocessed files to process
-        max_unprocessed_files = 1
+        max_unprocessed_files = 4
 
         # Get a list of all parquet files in the specified folder that are not in the processed_files set
         total_unprocessed_files = [
@@ -68,9 +68,9 @@ class AdSpider(scrapy.Spider):
             if filename.endswith(".parquet") and filename not in self.processed_files
         ]
         
-        unprocessed_files = total_unprocessed_files[:max_unprocessed_files]
-        # Write unprocessed files to a CSV file with the specified name
-        filename = f"spiders/log/scraped_unprocessed_files_{datetime.now().strftime('%Y%m%dT%H%M%S')}.csv"
+        unprocessed_files = total_unprocessed_files[:max_unprocessed_files] 
+        # LOGGER: Write unprocessed files to a CSV file with the specified name
+        filename = f"scraper_ads/spiders/log/scraped_unprocessed_files_{datetime.now().strftime('%Y%m%dT%H%M%S')}.csv"
         with open(filename, 'w') as f:
             writer = csv.writer(f)
             for file in unprocessed_files:
