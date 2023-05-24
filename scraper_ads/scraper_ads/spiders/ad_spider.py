@@ -59,7 +59,7 @@ class AdSpider(scrapy.Spider):
         print("Starting requests.........")
 
         # Set the maximum number of unprocessed files to process
-        max_unprocessed_files = 4
+        max_unprocessed_files = 4 # Set to max 4. At 10000 websites, scrapy starts crashing
 
         # Get a list of all parquet files in the specified folder that are not in the processed_files set
         total_unprocessed_files = [
